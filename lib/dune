@@ -1,2 +1,9 @@
 (library
- (name smol))
+ (name smol)
+ (preprocess
+  (pps ppx_deriving.show)))
+
+(ocamllex lexer)
+
+(menhir
+ (modules parser))

@@ -17,8 +17,10 @@ license: "MIT"
 homepage: "https://github.com/smol-lang/smol"
 bug-reports: "https://github.com/smol-lang/smol/issues"
 depends: [
-  "dune" {>= "3.17"}
   "ocaml"
+  "dune" {>= "3.17"}
+  "ppx_deriving"
+  "core"
   "odoc" {with-doc}
 ]
 build: [

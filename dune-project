@@ -24,4 +24,6 @@
 (package
  (name smol)
  (synopsis "a smol ocaml-based language")
- (depends ocaml))
+ (depends ocaml dune ppx_deriving core))
+
+(using menhir 3.0)
