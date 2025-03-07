@@ -8,8 +8,7 @@ let () =
   else (
     let filename = Sys.argv.(1) in
     try
-      let content = Core.In_channel.read_all filename in
-      let lexbuf = Lexing.from_string content in
+      let lexbuf = Lexing.from_channel (In_channel.open_text filename) in
       let parsed_ast = Parser.program Lexer.tokenize lexbuf in
       Format.printf "%s\n" (show_expr parsed_ast)
     with

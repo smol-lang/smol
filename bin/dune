@@ -1,4 +1,4 @@
 (executable
  (public_name smol)
  (name main)
- (libraries smol core))
+ (libraries smol))
