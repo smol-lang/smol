@@ -9,7 +9,7 @@ let lowercase_chars = ['a'-'z']
 let uppercase_chars = ['A'-'Z']
 let chars = lowercase_chars | uppercase_chars
 let int   = '-'? digits+
-let ident = (chars | '_')(chars | digits | '_')*
+let ident = (chars | '_')(chars | digits | '_')* '\''*
 
 rule tokenize = parse
   | spaces  { tokenize lexbuf }
