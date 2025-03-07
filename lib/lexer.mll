@@ -28,6 +28,7 @@ rule tokenize = parse
   | '>'     { GT }
   | ">="    { GEQ }
   | "let"   { LET }
+  | "rec"   { REC }
   | "in"    { IN }
   | "fun"   { FUN }
   | "->"    { ARROW }

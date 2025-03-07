@@ -10,8 +10,16 @@ type expr =
   | Div of expr * expr
   | Eq of expr * expr
   | Leq of expr * expr
-  | Let of (Id.t * Type.t) * expr * expr
+  | Let of
+      { recurse : bool
+      ; ident : Id.t * Type.t
+      ; body : expr
+      ; nest_in : expr
+      }
   | Var of Id.t
-  | Lambda of (Id.t * Type.t) * expr
+  | Lambda of
+      { ident : Id.t * Type.t
+      ; body : expr
+      }
   | App of expr * expr
 [@@deriving show]

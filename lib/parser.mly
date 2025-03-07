@@ -4,7 +4,12 @@ open Syntax
 let add_type ident = (ident, Type.gen_type ())
 
 let make_lambda params body =
-  List.fold_right (fun param acc -> Lambda ((param, Type.gen_type ()), acc)) params body
+  List.fold_right (fun param acc ->
+    Lambda
+      { ident = (param, Type.gen_type ())
+      ; body = acc
+      }
+  ) params body
 %}
 
 /* definition */
@@ -14,18 +19,16 @@ let make_lambda params body =
 %token <Id.t> IDENT
 %token NOT PLUS MINUS MUL DIV
 %token EQ NEQ LT LEQ GT GEQ
-%token LET IN FUN ARROW
+%token LET REC IN FUN ARROW
 %token SEMICOLON EOF
-%token PREC_LET
-%token PREC_UNARY_MINUS
-%token PREC_UNARY_NOT
 
 /* precedence */
 %right SEMICOLON
+%nonassoc PREC_LET
+%nonassoc ARROW
 %left EQ NEQ LT GT LEQ GEQ
 %left PLUS MINUS
 %left MUL DIV
-%right PREC_LET
 %right PREC_UNARY_MINUS
 %right PREC_UNARY_NOT
 
@@ -36,9 +39,17 @@ program:
   | expr EOF { $1 }
 
 expr:
-  | simple_expr { $1 }
-  | NOT expr { Not $2 } %prec PREC_UNARY_NOT
-  | MINUS expr { Neg $2 } %prec PREC_UNARY_MINUS
+  | non_app { $1 }
+  | app { $1 }
+
+app:
+  | app atomic_expr { App ($1, $2) }
+  | atomic_expr atomic_expr { App ($1, $2) }
+
+non_app:
+  | atomic_expr { $1 }
+  | NOT expr %prec PREC_UNARY_NOT { Not $2 }
+  | MINUS expr %prec PREC_UNARY_MINUS { Neg $2 }
   | expr PLUS expr { Add ($1, $3) }
   | expr MINUS expr { Sub ($1, $3) }
   | expr MUL expr { Mul ($1, $3) }
@@ -49,15 +60,38 @@ expr:
   | expr LT expr { Not (Leq ($3, $1)) }
   | expr GEQ expr { Leq ($3, $1) }
   | expr GT expr { Not (Leq ($1, $3)) }
-  | LET IDENT params EQ expr IN expr { Let (add_type $2, make_lambda $3 $5, $7) } %prec PREC_LET
-  | expr SEMICOLON expr { Let ((Id.gen_tmp Type.Unit, Type.Unit), $1, $3) }
-
-simple_expr:
-  | simple_expr atomic_expr { App ($1, $2) }
-  | atomic_expr { $1 }
+  | LET REC IDENT params EQ expr IN expr %prec PREC_LET
+    { Let
+        { ident = add_type $3
+        ; recurse = true
+        ; body = make_lambda $4 $6
+        ; nest_in = $8
+        }
+    }
+  | LET IDENT params EQ expr IN expr %prec PREC_LET
+    { Let
+        { ident = add_type $2
+        ; recurse = false
+        ; body = make_lambda $3 $5
+        ; nest_in = $7
+        }
+    }
+  | expr SEMICOLON expr
+    { Let
+        { ident = (Id.gen_tmp Type.Unit, Type.Unit)
+        ; recurse = false
+        ; body = $1
+        ; nest_in = $3
+        }
+    }
+  | FUN IDENT ARROW expr
+    { Lambda
+        { ident = add_type $2
+        ; body = $4
+        }
+    }
 
 atomic_expr:
-  | FUN IDENT ARROW expr { Lambda (add_type $2, $4) }
   | LPAREN expr RPAREN { $2 }
   | LPAREN RPAREN { Unit }
   | BOOL { Bool $1 }
