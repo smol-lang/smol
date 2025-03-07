@@ -29,6 +29,8 @@ rule tokenize = parse
   | ">="    { GEQ }
   | "let"   { LET }
   | "in"    { IN }
+  | "fun"   { FUN }
+  | "->"    { ARROW }
   | ";"     { SEMICOLON }
   | "_"     { IDENT (Id.gen_tmp Type.Unit) }
   | "true"  { BOOL (true) }

@@ -7,10 +7,11 @@ let gen_id s =
   Printf.sprintf "%s.%d" s !counter
 ;;
 
-let suffix = function
+let rec suffix = function
   | Type.Unit -> "u"
   | Type.Bool -> "b"
   | Type.Int -> "i"
+  | Type.Fun(param, ret) -> Printf.sprintf "%s_%s" (suffix param) (suffix ret)
   | Type.Var _ -> assert false
 ;;
 

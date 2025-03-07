@@ -2,6 +2,7 @@ type t =
   | Unit
   | Bool
   | Int
+  | Fun of t * t
   | Var of t option ref
 [@@deriving show]
 

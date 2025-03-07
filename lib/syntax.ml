@@ -12,4 +12,6 @@ type expr =
   | Leq of expr * expr
   | Let of (Id.t * Type.t) * expr * expr
   | Var of Id.t
+  | Lambda of (Id.t * Type.t) * expr
+  | App of expr * expr
 [@@deriving show]
