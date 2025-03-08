@@ -31,6 +31,9 @@ rule tokenize = parse
   | "rec"   { REC }
   | "in"    { IN }
   | "fun"   { FUN }
+  | "if"    { IF }
+  | "then"  { THEN }
+  | "else"  { ELSE }
   | "->"    { ARROW }
   | ";"     { SEMICOLON }
   | "_"     { IDENT (Id.gen_tmp Type.Unit) }

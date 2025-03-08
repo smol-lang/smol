@@ -22,4 +22,9 @@ type expr =
       ; body : expr
       }
   | App of expr * expr
+  | If of
+      { cond : expr
+      ; branch_true : expr
+      ; branch_false : expr
+      }
 [@@deriving show]

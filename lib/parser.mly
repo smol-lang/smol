@@ -20,9 +20,11 @@ let make_lambda params body =
 %token NOT PLUS MINUS MUL DIV
 %token EQ NEQ LT LEQ GT GEQ
 %token LET REC IN FUN ARROW
+%token IF THEN ELSE
 %token SEMICOLON EOF
 
 /* precedence */
+%nonassoc PREC_IF
 %right SEMICOLON
 %nonassoc PREC_LET
 %nonassoc ARROW
@@ -88,6 +90,13 @@ non_app:
     { Lambda
         { ident = add_type $2
         ; body = $4
+        }
+    }
+  | IF expr THEN expr ELSE expr %prec PREC_IF
+    { If
+        { cond = $2
+        ; branch_true = $4
+        ; branch_false = $6
         }
     }
 
