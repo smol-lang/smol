@@ -18,6 +18,7 @@ let make_lambda params body =
 %token <int> INT
 %token <Id.t> IDENT
 %token NOT PLUS MINUS MUL DIV
+%token LOR LAND
 %token EQ NEQ LT LEQ GT GEQ
 %token LET REC IN FUN ARROW
 %token IF THEN ELSE
@@ -28,6 +29,8 @@ let make_lambda params body =
 %right SEMICOLON
 %nonassoc PREC_LET
 %nonassoc ARROW
+%left LOR
+%left LAND
 %left EQ NEQ LT GT LEQ GEQ
 %left PLUS MINUS
 %left MUL DIV
@@ -52,6 +55,8 @@ non_app:
   | atomic_expr { $1 }
   | NOT expr %prec PREC_UNARY_NOT { Not $2 }
   | MINUS expr %prec PREC_UNARY_MINUS { Neg $2 }
+  | expr LOR expr { Or ($1, $3) }
+  | expr LAND expr { And ($1, $3) }
   | expr PLUS expr { Add ($1, $3) }
   | expr MINUS expr { Sub ($1, $3) }
   | expr MUL expr { Mul ($1, $3) }
