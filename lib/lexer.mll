@@ -22,6 +22,8 @@ rule tokenize = parse
   | '*'     { MUL }
   | '/'     { DIV }
   | '='     { EQ }
+  | "||"    { LOR }
+  | "&&"    { LAND }
   | "<>"    { NEQ }
   | '<'     { LT }
   | "<="    { LEQ }

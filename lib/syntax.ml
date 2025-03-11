@@ -10,6 +10,8 @@ and expr =
   | Int of int
   | Not of expr
   | Neg of expr
+  | And of expr * expr
+  | Or of expr * expr
   | Add of expr * expr
   | Sub of expr * expr
   | Mul of expr * expr
