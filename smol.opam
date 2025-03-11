@@ -20,6 +20,7 @@ depends: [
   "ocaml"
   "dune" {>= "3.17"}
   "ppx_deriving"
+  "menhir"
   "odoc" {with-doc}
 ]
 build: [

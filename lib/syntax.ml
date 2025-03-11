@@ -1,4 +1,10 @@
-type expr =
+type binding =
+  { recurse : bool
+  ; ident : Id.t * Type.t
+  ; body : expr
+  }
+
+and expr =
   | Unit
   | Bool of bool
   | Int of int
@@ -12,10 +18,8 @@ type expr =
   | Div of expr * expr
   | Eq of expr * expr
   | Leq of expr * expr
-  | Let of
-      { recurse : bool
-      ; ident : Id.t * Type.t
-      ; body : expr
+  | Lets of
+      { bindings : binding list
       ; nest_in : expr
       }
   | Var of Id.t

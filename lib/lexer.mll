@@ -31,6 +31,7 @@ rule tokenize = parse
   | ">="    { GEQ }
   | "let"   { LET }
   | "rec"   { REC }
+  | "and"   { AND }
   | "in"    { IN }
   | "fun"   { FUN }
   | "if"    { IF }

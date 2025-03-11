@@ -10,6 +10,12 @@ let make_lambda params body =
       ; body = acc
       }
   ) params body
+
+let make_binding recurse ident params body =
+  { recurse
+  ; ident = add_type ident
+  ; body = make_lambda params body
+  }
 %}
 
 /* definition */
@@ -20,7 +26,7 @@ let make_lambda params body =
 %token NOT PLUS MINUS MUL DIV
 %token LOR LAND
 %token EQ NEQ LT LEQ GT GEQ
-%token LET REC IN FUN ARROW
+%token LET REC IN FUN ARROW AND
 %token IF THEN ELSE
 %token SEMICOLON EOF
 
@@ -67,27 +73,25 @@ non_app:
   | expr LT expr { Not (Leq ($3, $1)) }
   | expr GEQ expr { Leq ($3, $1) }
   | expr GT expr { Not (Leq ($1, $3)) }
-  | LET REC IDENT params EQ expr IN expr %prec PREC_LET
-    { Let
-        { ident = add_type $3
-        ; recurse = true
-        ; body = make_lambda $4 $6
-        ; nest_in = $8
+  | LET REC let_and_bindings IN expr %prec PREC_LET
+    { Lets 
+        { bindings = $3
+        ; nest_in = $5
         }
     }
-  | LET IDENT params EQ expr IN expr %prec PREC_LET
-    { Let
-        { ident = add_type $2
-        ; recurse = false
-        ; body = make_lambda $3 $5
-        ; nest_in = $7
+  | LET let_bindings IN expr %prec PREC_LET
+    { Lets
+        { bindings = $2
+        ; nest_in = $4
         }
     }
   | expr SEMICOLON expr
-    { Let
-        { ident = (Id.gen_tmp Type.Unit, Type.Unit)
-        ; recurse = false
-        ; body = $1
+    { Lets
+        { bindings = 
+            [{ recurse = false
+             ; ident = (Id.gen_tmp Type.Unit, Type.Unit)
+             ; body = $1
+             }]
         ; nest_in = $3
         }
     }
@@ -111,6 +115,14 @@ atomic_expr:
   | BOOL { Bool $1 }
   | INT { Int $1 }
   | IDENT { Var $1 }
+
+let_bindings:
+  | IDENT params EQ expr { [make_binding false $1 $2 $4] }
+  | IDENT params EQ expr AND let_bindings { make_binding false $1 $2 $4 :: $6 }
+
+let_and_bindings:
+  | IDENT params EQ expr { [make_binding true $1 $2 $4] }
+  | IDENT params EQ expr AND let_and_bindings { make_binding true $1 $2 $4 :: $6 }
 
 params:
   | IDENT params { $1 :: $2 }
