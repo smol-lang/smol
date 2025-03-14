@@ -96,12 +96,7 @@ non_app:
         ; nest_in = $3
         }
     }
-  | FUN IDENT ARROW expr
-    { Lambda
-        { ident = add_type $2
-        ; body = $4
-        }
-    }
+  | FUN params ARROW expr { make_lambda $2 $4 }
   | IF expr THEN expr ELSE expr %prec PREC_IF
     { If
         { cond = $2
