@@ -21,6 +21,7 @@ rule tokenize = parse
   | '-'     { MINUS }
   | '*'     { MUL }
   | '/'     { DIV }
+  | "mod"   { MOD }
   | '='     { EQ }
   | "||"    { LOR }
   | "&&"    { LAND }

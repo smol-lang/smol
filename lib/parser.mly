@@ -23,7 +23,7 @@ let make_binding recurse ident params body =
 %token <bool> BOOL
 %token <int> INT
 %token <Id.t> IDENT
-%token NOT PLUS MINUS MUL DIV
+%token NOT PLUS MINUS MUL DIV MOD
 %token LOR LAND
 %token EQ NEQ LT LEQ GT GEQ
 %token LET REC IN FUN ARROW AND
@@ -39,7 +39,7 @@ let make_binding recurse ident params body =
 %left LAND
 %left EQ NEQ LT GT LEQ GEQ
 %left PLUS MINUS
-%left MUL DIV
+%left MUL DIV MOD
 %right PREC_UNARY_MINUS
 %right PREC_UNARY_NOT
 
@@ -67,6 +67,7 @@ non_app:
   | expr MINUS expr { Sub ($1, $3) }
   | expr MUL expr { Mul ($1, $3) }
   | expr DIV expr { Div ($1, $3) }
+  | expr MOD expr { Mod ($1, $3) }
   | expr EQ expr { Eq ($1, $3) }
   | expr NEQ expr { Not (Eq ($1, $3)) }
   | expr LEQ expr { Leq ($1, $3) }
