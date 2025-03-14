@@ -16,6 +16,7 @@ and expr =
   | Sub of expr * expr
   | Mul of expr * expr
   | Div of expr * expr
+  | Mod of expr * expr
   | Eq of expr * expr
   | Leq of expr * expr
   | Lets of
