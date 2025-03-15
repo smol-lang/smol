@@ -3,7 +3,13 @@ type t =
   | Bool
   | Int
   | Fun of t * t
-  | Var of t option ref
+  | Poly of int
 [@@deriving show]
 
-let gen_type () = Var (ref None)
+let counter = ref 0
+
+let gen_type () =
+  let t = !counter in
+  counter := !counter + 1;
+  Poly t
+;;

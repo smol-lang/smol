@@ -12,7 +12,7 @@ let rec suffix = function
   | Type.Bool -> "b"
   | Type.Int -> "i"
   | Type.Fun (param, ret) -> Printf.sprintf "%s_%s" (suffix param) (suffix ret)
-  | Type.Var _ -> assert false
+  | _ -> failwith "not implemented"
 ;;
 
 let gen_tmp typ =
