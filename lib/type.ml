@@ -4,7 +4,7 @@ type t =
   | Int
   | Fun of t * t
   | Poly of int
-[@@deriving show]
+[@@deriving show { with_path = false }]
 
 let counter = ref 0
 

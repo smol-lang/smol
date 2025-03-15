@@ -1,9 +1,9 @@
 module NameMap = Map.Make (String)
 
 let rec annotate env = function
-  | Ast.Unit -> Tast.Unit Type.Unit
-  | Ast.Bool b -> Tast.Bool (b, Type.Bool)
-  | Ast.Int i -> Tast.Int (i, Type.Int)
+  | Ast.Unit -> Tast.UnitLit Type.Unit
+  | Ast.Bool b -> Tast.BoolLit (b, Type.Bool)
+  | Ast.Int i -> Tast.IntLit (i, Type.Int)
   | Ast.Not e -> Tast.Not (annotate env e, Type.Bool)
   | Ast.Neg e -> Tast.Neg (annotate env e, Type.Int)
   | Ast.And (e1, e2) -> Tast.And (annotate env e1, annotate env e2, Type.Bool)
@@ -64,7 +64,7 @@ let rec annotate env = function
 ;;
 
 let rec collect_constraints = function
-  | Tast.Unit _ | Tast.Bool (_, _) | Tast.Int (_, _) | Tast.Var (_, _) -> []
+  | Tast.UnitLit _ | Tast.BoolLit (_, _) | Tast.IntLit (_, _) | Tast.Var (_, _) -> []
   | Tast.Not (e, _) -> (Tast.extract_type e, Type.Bool) :: collect_constraints e
   | Tast.Neg (e, _) -> (Tast.extract_type e, Type.Int) :: collect_constraints e
   | Tast.And (e1, e2, _) | Tast.Or (e1, e2, _) ->
@@ -164,9 +164,9 @@ let unify_constraints constraints =
 let rec apply_subst_texpr subst texpr =
   let apply_to_type = apply_subst subst in
   match texpr with
-  | Tast.Unit t -> Tast.Unit (apply_to_type t)
-  | Tast.Bool (b, t) -> Tast.Bool (b, apply_to_type t)
-  | Tast.Int (i, t) -> Tast.Int (i, apply_to_type t)
+  | Tast.UnitLit t -> Tast.UnitLit (apply_to_type t)
+  | Tast.BoolLit (b, t) -> Tast.BoolLit (b, apply_to_type t)
+  | Tast.IntLit (i, t) -> Tast.IntLit (i, apply_to_type t)
   | Tast.Not (e, t) -> Tast.Not (apply_subst_texpr subst e, apply_to_type t)
   | Tast.Neg (e, t) -> Tast.Neg (apply_subst_texpr subst e, apply_to_type t)
   | Tast.And (e1, e2, t) ->

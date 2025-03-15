@@ -6,9 +6,9 @@ type tbinding =
   }
 
 and texpr =
-  | Unit of Type.t
-  | Bool of bool * Type.t
-  | Int of int * Type.t
+  | UnitLit of Type.t
+  | BoolLit of bool * Type.t
+  | IntLit of int * Type.t
   | Not of texpr * Type.t
   | Neg of texpr * Type.t
   | And of texpr * texpr * Type.t
@@ -39,12 +39,12 @@ and texpr =
       ; branch_false : texpr
       ; typ : Type.t
       }
-[@@deriving show]
+[@@deriving show { with_path = false }]
 
 let extract_type = function
-  | Unit t -> t
-  | Bool (_, t) -> t
-  | Int (_, t) -> t
+  | UnitLit t -> t
+  | BoolLit (_, t) -> t
+  | IntLit (_, t) -> t
   | Not (_, t) -> t
   | Neg (_, t) -> t
   | And (_, _, t) -> t
