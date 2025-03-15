@@ -1,6 +1,6 @@
 type binding =
   { recurse : bool
-  ; ident : Id.t * Type.t
+  ; ident : Id.t
   ; body : expr
   }
 
@@ -25,7 +25,7 @@ and expr =
       }
   | Var of Id.t
   | Lambda of
-      { ident : Id.t * Type.t
+      { ident : Id.t
       ; body : expr
       }
   | App of expr * expr
