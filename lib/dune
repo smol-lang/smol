@@ -7,3 +7,8 @@
 
 (menhir
  (modules parser))
+
+(env
+ (dev
+  (flags
+   (:standard -warn-error -A))))

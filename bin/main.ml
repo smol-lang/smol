@@ -9,8 +9,8 @@ let () =
     try
       let lexbuf = Lexing.from_channel (In_channel.open_text filename) in
       let ast = Parser.program Lexer.tokenize lexbuf in
-      let tast = Infer.infer ast in
-      Format.printf ">>>>> Typed AST:\n%s\n" (Tast.show_texpr tast)
+      let _, texpr = Infer.type_infer ast in
+      Format.printf "%a@." Tast.pp_texpr texpr
     with
     | Sys_error err -> Printf.printf "Error: %s\n" err
     | exn ->
