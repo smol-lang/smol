@@ -1,19 +1,17 @@
 %{
-open Syntax
-
-let add_type ident = (ident, Type.gen_type ())
+open Ast
 
 let make_lambda params body =
   List.fold_right (fun param acc ->
     Lambda
-      { ident = (param, Type.gen_type ())
+      { ident = param
       ; body = acc
       }
   ) params body
 
 let make_binding recurse ident params body =
   { recurse
-  ; ident = add_type ident
+  ; ident
   ; body = make_lambda params body
   }
 %}
@@ -43,7 +41,7 @@ let make_binding recurse ident params body =
 %right PREC_UNARY_MINUS
 %right PREC_UNARY_NOT
 
-%start <Syntax.expr> program
+%start <Ast.expr> program
 %%
 
 program:
@@ -90,7 +88,7 @@ non_app:
     { Lets
         { bindings = 
             [{ recurse = false
-             ; ident = (Id.gen_tmp Type.Unit, Type.Unit)
+             ; ident = Id.gen_tmp Type.Unit
              ; body = $1
              }]
         ; nest_in = $3

@@ -1,5 +1,5 @@
 open Smol
-open Syntax
+open Ast
 
 let () =
   Printexc.record_backtrace true;
