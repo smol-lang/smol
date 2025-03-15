@@ -6,6 +6,8 @@ type t =
   | Poly of int
 [@@deriving show { with_path = false }]
 
+type scheme = Scheme of int list * t [@@deriving show { with_path = false }]
+
 let counter = ref 0
 
 let gen_type () =

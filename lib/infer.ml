@@ -1,5 +1,46 @@
 module NameMap = Map.Make (String)
 
+let free_vars typ =
+  let rec fvs acc = function
+    | Type.Unit | Type.Bool | Type.Int -> acc
+    | Type.Fun (t1, t2) -> fvs (fvs acc t1) t2
+    | Type.Poly n -> n :: acc
+  in
+  List.sort_uniq compare (fvs [] typ)
+;;
+
+let free_vars_env env =
+  NameMap.fold
+    (fun _ (Type.Scheme (bound, typ)) acc ->
+       let typ_fvs = free_vars typ in
+       let unbound = List.filter (fun v -> not (List.mem v bound)) typ_fvs in
+       unbound @ acc)
+    env
+    []
+;;
+
+let rec apply_subst subst = function
+  | (Type.Unit | Type.Bool | Type.Int) as typ -> typ
+  | Type.Fun (t1, t2) -> Type.Fun (apply_subst subst t1, apply_subst subst t2)
+  | Type.Poly n ->
+    (match List.assoc_opt n subst with
+     | Some t -> apply_subst subst t
+     | None -> Type.Poly n)
+;;
+
+let generalize env typ =
+  let env_fvs = free_vars_env env in
+  let typ_fvs = free_vars typ in
+  let quantified = List.filter (fun v -> not (List.mem v env_fvs)) typ_fvs in
+  Type.Scheme (quantified, typ)
+;;
+
+let instantiate (Type.Scheme (vars, typ)) =
+  let fresh_vars = List.map (fun _ -> Type.gen_type ()) vars in
+  let subst = List.combine vars fresh_vars in
+  apply_subst subst typ
+;;
+
 let rec annotate env = function
   | Ast.Unit -> Tast.UnitLit Type.Unit
   | Ast.Bool b -> Tast.BoolLit (b, Type.Bool)
@@ -16,37 +57,47 @@ let rec annotate env = function
   | Ast.Eq (e1, e2) -> Tast.Eq (annotate env e1, annotate env e2, Type.Bool)
   | Ast.Leq (e1, e2) -> Tast.Leq (annotate env e1, annotate env e2, Type.Bool)
   | Ast.Lets { bindings; nest_in } ->
-    (* mutual bindings *)
-    (* first, generate types for all the bindings at once *)
+    (* Step 1: Extend env with fresh type variables for all bindings *)
     let env' =
       List.fold_left
         (fun env' Ast.{ ident; body = _; recurse = _ } ->
-           NameMap.add ident (Type.gen_type ()) env')
+           NameMap.add ident (Type.Scheme ([], Type.gen_type ())) env')
         env
         bindings
     in
-    (* then, annotate the bodies of the bindings *)
+    (* Step 2: Annotate bodies *)
     let tbindings =
       List.map
         (fun Ast.{ ident; body; recurse } ->
            let tbody = annotate env' body in
-           Tast.{ recurse; ident; body = tbody; typ = NameMap.find ident env' })
+           let typ = Tast.extract_type tbody in
+           (* Generalize the type after annotation *)
+           let _ = generalize env' typ in
+           Tast.{ recurse; ident; body = tbody; typ })
         bindings
     in
-    let tnest_in = annotate env' nest_in in
+    (* Step 3: Update env with generalized schemes *)
+    let env'' =
+      List.fold_left
+        (fun env'' Tast.{ ident; typ; _ } ->
+           NameMap.add ident (generalize env' typ) env'')
+        env
+        tbindings
+    in
+    let tnest_in = annotate env'' nest_in in
     Tast.Lets
       { bindings = tbindings; nest_in = tnest_in; typ = Tast.extract_type tnest_in }
-  | Ast.Var x -> Tast.Var (x, NameMap.find x env)
+  | Ast.Var x ->
+    let scheme = NameMap.find x env in
+    let typ = instantiate scheme in
+    Tast.Var (x, typ)
   | Ast.Lambda { ident; body } ->
-    let env' = NameMap.add ident (Type.gen_type ()) env in
+    let param_type = Type.gen_type () in
+    let env' = NameMap.add ident (Type.Scheme ([], param_type)) env in
     let tbody = annotate env' body in
-    let param_type = NameMap.find ident env' in
+    let return_type = Tast.extract_type tbody in
     Tast.Lambda
-      { ident
-      ; param_type
-      ; body = tbody
-      ; typ = Type.Fun (param_type, Tast.extract_type tbody)
-      }
+      { ident; param_type; body = tbody; typ = Type.Fun (param_type, return_type) }
   | Ast.App (e1, e2) ->
     let t1 = annotate env e1 in
     let t2 = annotate env e2 in
@@ -108,15 +159,6 @@ let rec collect_constraints = function
      :: collect_constraints cond)
     @ collect_constraints branch_true
     @ collect_constraints branch_false
-;;
-
-let rec apply_subst subst = function
-  | (Type.Unit | Type.Bool | Type.Int) as typ -> typ
-  | Type.Fun (t1, t2) -> Type.Fun (apply_subst subst t1, apply_subst subst t2)
-  | Type.Poly n ->
-    (match List.assoc_opt n subst with
-     | Some t -> apply_subst subst t
-     | None -> Type.Poly n)
 ;;
 
 let rec occurs var_id = function
@@ -223,8 +265,13 @@ let rec apply_subst_texpr subst texpr =
       }
 ;;
 
+let init_env =
+  NameMap.empty
+  |> NameMap.add "print_int" (Type.Scheme ([], Type.Fun (Type.Int, Type.Unit)))
+;;
+
 let infer ast =
-  let tast = annotate NameMap.empty ast in
+  let tast = annotate init_env ast in
   let constraints = collect_constraints tast in
   let subst = unify_constraints constraints in
   apply_subst_texpr subst tast
