@@ -18,16 +18,17 @@ we vibe code a smol ocaml based language
     - [x] Mutual Recursion
     - [x] Higher order functions
     - [x] Closures
-- [x] Basic integer arithmetic operations (`+`, `-`, `*`, `/`)
-- [x] Basic boolean operations (`&&`, `||`, `!`)
+- [x] Basic integer arithmetic operations (`+`, `-`, `*`, `/`, `mod`)
+- [x] Basic boolean operations (`&&`, `||`, `!`, `=`, `<>`, `<`, `>`, `<=`, `>=`)
 - [x] Control flow
-- [ ] Type inference
+- [x] Type inference
+- [x] Polymorphic types
 
 ## Installation
 
 - [Install OCaml](https://ocaml.org/docs/install.html)
 - Clone this repository and enter the directory
-- Create an OPAM switch
+- Create an OPAM switch (we use 5.3.0, but older versions should work as well)
     ```sh
     opam switch create . ocaml-base-compiler.5.3.0
     ```
@@ -48,8 +49,8 @@ we vibe code a smol ocaml based language
 
 See the `examples/` directory for example programs.
 
-For example, to compile `examples/1.smol`:
+For example, to compile `examples/1.ml`:
 
 ```sh
-dune exec smol examples/1.smol
+dune exec smol examples/1.ml
 ```
