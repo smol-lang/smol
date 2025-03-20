@@ -592,6 +592,7 @@ and infer_mutual_rec_bindings env bindings =
 
 let type_infer expr =
   try
+    let expr = Alpha.alpha_convert_top expr in
     let final_subst, typ, texpr = infer [] expr in
     let final_texpr = apply_subst_texpr final_subst texpr in
     apply_subst final_subst typ, final_texpr
