@@ -21,8 +21,9 @@ we vibe code a smol ocaml based language
 - [x] Basic integer arithmetic operations (`+`, `-`, `*`, `/`, `mod`)
 - [x] Basic boolean operations (`&&`, `||`, `!`, `=`, `<>`, `<`, `>`, `<=`, `>=`)
 - [x] Control flow
-- [x] Type inference
-- [x] Polymorphic types
+- [x] Hindley-Milner type inference
+    - [x] Concrete types (`int`, `bool`, `()`, function types)
+    - [x] Polymorphic types
 
 ## Installation
 
