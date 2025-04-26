@@ -9,5 +9,13 @@ let rec power a b =
     else
       full
 in
-let double' = fun x -> 2 * x in
-power 10 (double' 5)
+let rec fib n =
+  if n = 0 then
+    0
+  else if n = 1 then
+    1
+  else
+    fib (n - 1) + fib (n - 2)
+in
+power 3 ((fib 8) - 1)
+

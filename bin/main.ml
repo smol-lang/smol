@@ -9,8 +9,11 @@ let () =
     try
       let lexbuf = Lexing.from_channel (In_channel.open_text filename) in
       let ast = Parser.program Lexer.tokenize lexbuf in
+      (* Format.printf "%a@." Tast.pp_texpr texpr; *)
       let _, texpr = Infer.type_infer ast in
-      Format.printf "%a@." Tast.pp_texpr texpr
+      (* Format.printf "%a@." Tast.pp_texpr texpr; *)
+      let value = Eval.eval [] texpr in
+      print_endline (Value.string_of_value value)
     with
     | Sys_error err -> Printf.printf "Error: %s\n" err
     | exn ->
